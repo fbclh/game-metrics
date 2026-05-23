@@ -6,14 +6,17 @@
   --red: hsla(0, 85%, 56%, 0.95);
   --black: hsl(0, 0%, 15%);
   --white: hsl(0, 0%, 96%);
+  --font-press-start-2p: 'Press Start 2P', cursive;
+  --nav-red: #e60012;
+  --cards-grid-width: calc(190px * 5 + 1.25rem * 4);
 }
 
 body {
-  background-color: var(--black);
+  background-color: #fff;
 }
 
 .status {
-  color: var(--white);
+  color: var(--black);
   text-align: center;
   margin: 2rem 1rem;
   font-family: system-ui, sans-serif;
