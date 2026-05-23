@@ -1,11 +1,11 @@
 const wrapperStyle = {
   fontSize: '0.75rem',
-  color: '#6b7280',
+  color: '#fff',
   lineHeight: 1.4,
 };
 
 const linkStyle = {
-  color: '#9ca3af',
+  color: '#fecaca',
   textDecoration: 'underline',
   textUnderlineOffset: '2px',
 };
