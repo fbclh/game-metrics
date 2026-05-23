@@ -1,28 +1,15 @@
-import { RawgAttribution } from '../components/layout/rawg-attribution';
+import { Roboto_Condensed } from 'next/font/google';
 
-const footerStyle = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  padding: '0.75rem 1.5rem',
-  borderTop: '1px solid #e5e7eb',
-};
-
-const brandStyle = {
-  fontSize: '0.75rem',
-  color: '#6b7280',
-};
+const robotoCondensed = Roboto_Condensed({
+  subsets: ['latin'],
+  weight: ['700'],
+  variable: '--font-roboto-condensed',
+});
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body>
-        {children}
-        <footer style={footerStyle}>
-          <RawgAttribution />
-          <span style={brandStyle}>GameMetrics</span>
-        </footer>
-      </body>
+    <html lang="en" className={robotoCondensed.variable}>
+      <body>{children}</body>
     </html>
   );
 }
