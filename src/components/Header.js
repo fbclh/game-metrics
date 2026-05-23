@@ -10,7 +10,7 @@ export const Header = ({ characters, handleOnChange, handleSubmit }) => (
       <input
         className={styles.input}
         type="text"
-        placeholder="Search character"
+        placeholder="Search game"
         value={characters}
         onChange={handleOnChange}
       />

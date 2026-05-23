@@ -1,26 +1,19 @@
 import axios from 'axios';
-import md5 from 'md5';
 
-const publicKey = process.env.REACT_APP_MARVEL_PUBLIC_KEY;
-const privateKey = process.env.REACT_APP_MARVEL_PRIVATE_KEY;
-const useDirectGameApi = Boolean(publicKey && privateKey);
+const apiKey = process.env.REACT_APP_RAWG_API_KEY;
+const useDirectApi = Boolean(apiKey);
 
-function getAuthParams() {
-  const ts = Date.now();
-  return {
-    ts,
-    apikey: publicKey,
-    hash: md5(`${ts}${privateKey}${publicKey}`),
-    limit: 100,
+export const fetchGames = () => {
+  const params = {
+    page_size: 40,
+    ordering: '-released',
   };
-}
 
-export const fetchComics = () => {
-  if (useDirectGameApi) {
-    return axios.get('https://gateway.marvel.com/v1/public/comics', {
-      params: getAuthParams(),
+  if (useDirectApi) {
+    return axios.get('https://api.rawg.io/api/games', {
+      params: { ...params, key: apiKey },
     });
   }
 
-  return axios.get('/api/comics');
+  return axios.get('/api/games', { params });
 };

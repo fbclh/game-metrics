@@ -1,6 +1,6 @@
 # Game Metrics
 
-Game Metrics is an app that allows the user to scroll through all the comics ever released from newest to oldest. The app also allows users to search for a Marvel character.
+Game Metrics is an app that lets you browse video games from newest to oldest and search by title.
 
 ![screenshot](src/assets/screenshot.png)
 
@@ -14,15 +14,14 @@ Game Metrics is an app that allows the user to scroll through all the comics eve
 
 ## Environment variables
 
-Comics are loaded via the [Marvel API](https://developer.marvel.com/). In production, requests go through a Vercel serverless function so your private key stays on the server.
+Games are loaded via the [RAWG API](https://rawg.io/apidocs). In production, requests go through a Vercel serverless function so your API key stays on the server.
 
-1. Create or open your API keys at [developer.marvel.com/account](https://developer.marvel.com/account).
+1. Create an API key at [rawg.io/apidocs](https://rawg.io/apidocs).
 2. In Vercel → **Project** → **Settings** → **Environment Variables**, add:
-   - `MARVEL_PUBLIC_KEY`
-   - `MARVEL_PRIVATE_KEY`
+   - `RAWG_API_KEY`
 3. Redeploy after saving.
 
-For local development with `npm start`, copy `.env.example` to `.env` and set `REACT_APP_MARVEL_*`, or run `npx vercel dev` to use the `/api/comics` proxy.
+For local development with `npm start`, copy `.env.example` to `.env.local` and set `REACT_APP_RAWG_API_KEY`, or run `npx vercel dev` to use the `/api/games` proxy.
 
 ## Setup
 

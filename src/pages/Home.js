@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { fetchComics } from '../api/API';
-import { Comics } from '../components/Comics';
+import { fetchGames } from '../api/API';
+import { Games } from '../components/Games';
 import { Header } from '../components/Header';
 import { Pagination } from '../components/Pagination';
 
 export const Home = () => {
-  const [comics, setComics] = useState([]);
+  const [games, setGames] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(true);
@@ -14,21 +14,21 @@ export const Home = () => {
   useEffect(() => {
     let cancelled = false;
 
-    fetchComics()
+    fetchGames()
       .then((response) => {
         if (cancelled) return;
-        setComics(response.data.data.results);
+        setGames(response.data.results);
         setError(null);
       })
       .catch((err) => {
         if (cancelled) return;
         const message =
+          err.response?.data?.detail ||
           err.response?.data?.message ||
-          err.response?.data?.code ||
           err.message ||
-          'Failed to load comics.';
+          'Failed to load games.';
         setError(message);
-        setComics([]);
+        setGames([]);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -49,11 +49,11 @@ export const Home = () => {
     setInputValue('');
   };
 
-  const displayComics = searchQuery
-    ? comics.filter((comic) =>
-        comic.title.toLowerCase().includes(searchQuery.toLowerCase()),
+  const displayGames = searchQuery
+    ? games.filter((game) =>
+        game.name.toLowerCase().includes(searchQuery.toLowerCase()),
       )
-    : comics;
+    : games;
 
   return (
     <>
@@ -62,13 +62,13 @@ export const Home = () => {
         handleOnChange={handleOnChange}
         handleSubmit={handleSubmit}
       />
-      {loading && <p className="status">Loading comics…</p>}
+      {loading && <p className="status">Loading games…</p>}
       {error && (
         <p className="status status--error" role="alert">
           {error}
         </p>
       )}
-      {!loading && !error && <Comics comics={displayComics} />}
+      {!loading && !error && <Games games={displayGames} />}
       <Pagination />
     </>
   );
