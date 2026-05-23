@@ -1,24 +1,39 @@
 import { useEffect, useState } from 'react';
-import { fetchGames } from '../api/API';
+import { fetchGames, GAMES_PAGE_SIZE } from '../api/API';
 import { Games } from '../components/Games';
 import { Header } from '../components/Header';
 import { Pagination } from '../components/Pagination';
+import styles from '../styles/Home.module.css';
 
 export const Home = () => {
   const [games, setGames] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
   const [inputValue, setInputValue] = useState('');
+  const [activeSearch, setActiveSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const pageCount = Math.max(1, Math.ceil(totalCount / GAMES_PAGE_SIZE));
+  const hasPrevious = page > 1;
+  const hasNext = page < pageCount;
 
   useEffect(() => {
     let cancelled = false;
 
-    fetchGames()
+    setLoading(true);
+
+    fetchGames({
+      search: activeSearch || undefined,
+      page,
+      pageSize: GAMES_PAGE_SIZE,
+    })
       .then((response) => {
         if (cancelled) return;
         setGames(response.data.results);
+        setTotalCount(response.data.count || 0);
         setError(null);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       })
       .catch((err) => {
         if (cancelled) return;
@@ -29,6 +44,7 @@ export const Home = () => {
           'Failed to load games.';
         setError(message);
         setGames([]);
+        setTotalCount(0);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -37,7 +53,7 @@ export const Home = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [activeSearch, page]);
 
   const handleOnChange = (e) => {
     setInputValue(e.target.value);
@@ -45,15 +61,21 @@ export const Home = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setSearchQuery(inputValue.trim());
-    setInputValue('');
+    setPage(1);
+    setActiveSearch(inputValue.trim());
   };
 
-  const displayGames = searchQuery
-    ? games.filter((game) =>
-        game.name.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
-    : games;
+  const handlePageSelect = (pageNumber) => {
+    setPage(pageNumber);
+  };
+
+  const handlePrevious = () => {
+    setPage((current) => Math.max(1, current - 1));
+  };
+
+  const handleNext = () => {
+    setPage((current) => Math.min(pageCount, current + 1));
+  };
 
   return (
     <>
@@ -62,14 +84,38 @@ export const Home = () => {
         handleOnChange={handleOnChange}
         handleSubmit={handleSubmit}
       />
-      {loading && <p className="status">Loading games…</p>}
+      {loading && games.length === 0 && (
+        <p className="status">
+          {activeSearch ? `Searching for “${activeSearch}”…` : 'Loading games…'}
+        </p>
+      )}
       {error && (
         <p className="status status--error" role="alert">
           {error}
         </p>
       )}
-      {!loading && !error && <Games games={displayGames} />}
-      <Pagination />
+      {!loading && !error && games.length === 0 && (
+        <p className="status">
+          {activeSearch
+            ? `No games found for “${activeSearch}”.`
+            : 'No games found.'}
+        </p>
+      )}
+      {!error && games.length > 0 && (
+        <div className={styles.layout}>
+          <Games games={games} />
+          <Pagination
+            page={page}
+            pageCount={pageCount}
+            onPageSelect={handlePageSelect}
+            onPrevious={handlePrevious}
+            onNext={handleNext}
+            hasPrevious={hasPrevious}
+            hasNext={hasNext}
+            disabled={loading}
+          />
+        </div>
+      )}
     </>
   );
 };
