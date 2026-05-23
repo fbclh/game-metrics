@@ -10,13 +10,19 @@ module.exports = async (req, res) => {
   }
 
   const page = req.query.page || '1';
-  const pageSize = req.query.page_size || '40';
+  const pageSize = req.query.page_size || '100';
+  const search = req.query.search;
 
   const url = new URL('https://api.rawg.io/api/games');
   url.searchParams.set('key', apiKey);
   url.searchParams.set('page', String(page));
   url.searchParams.set('page_size', String(pageSize));
-  url.searchParams.set('ordering', '-released');
+
+  if (search) {
+    url.searchParams.set('search', String(search));
+  } else {
+    url.searchParams.set('ordering', '-released');
+  }
 
   try {
     const response = await fetch(url.toString());

@@ -3,10 +3,13 @@ import axios from 'axios';
 const apiKey = process.env.REACT_APP_RAWG_API_KEY;
 const useDirectApi = Boolean(apiKey);
 
-export const fetchGames = () => {
+export const GAMES_PAGE_SIZE = 100;
+
+export const fetchGames = ({ search, page, pageSize } = {}) => {
   const params = {
-    page_size: 40,
-    ordering: '-released',
+    page_size: pageSize || GAMES_PAGE_SIZE,
+    ...(page && { page }),
+    ...(search ? { search } : { ordering: '-released' }),
   };
 
   if (useDirectApi) {
