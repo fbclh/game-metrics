@@ -1,12 +1,12 @@
-# Marvel Metrics
+# Game Metrics
 
-Marvel Metrics is an app that allows the user to scroll through all the comics ever released from newest to oldest. The app also allows users to search for a Marvel character.
+Game Metrics is an app that allows the user to scroll through all the comics ever released from newest to oldest. The app also allows users to search for a Marvel character.
 
 ![screenshot](src/assets/screenshot.png)
 
 ## Live Demo
 
-[marvel-metrics.vercel.app](https://marvel-metrics.vercel.app/)
+[game-metrics.vercel.app](https://game-metrics.vercel.app/)
 
 ## Built With
 
@@ -29,13 +29,13 @@ For local development with `npm start`, copy `.env.example` to `.env` and set `R
 Clone
 
 ```sh
-   git clone git@github.com:fbclh/marvel-metrics.git
+   git clone git@github.com:fbclh/game-metrics.git
 ```
 
 Run
 
 ```sh
-   cd marvel-metrics
+   cd game-metrics
    npm install
    npm start
 ```

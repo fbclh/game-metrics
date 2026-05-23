@@ -4,7 +4,7 @@ import styles from '../styles/Header.module.css';
 export const Header = ({ characters, handleOnChange, handleSubmit }) => (
   <header className={styles.header}>
     <div>
-      <img src={logo} alt="Marvel logo" height="60" />
+      <img src={logo} alt="Game logo" height="60" />
     </div>
     <form onSubmit={handleSubmit}>
       <input
