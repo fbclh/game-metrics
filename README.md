@@ -12,6 +12,18 @@ Marvel Metrics is an app that allows the user to scroll through all the comics e
 
 - React
 
+## Environment variables
+
+Comics are loaded via the [Marvel API](https://developer.marvel.com/). In production, requests go through a Vercel serverless function so your private key stays on the server.
+
+1. Create or open your API keys at [developer.marvel.com/account](https://developer.marvel.com/account).
+2. In Vercel → **Project** → **Settings** → **Environment Variables**, add:
+   - `MARVEL_PUBLIC_KEY`
+   - `MARVEL_PRIVATE_KEY`
+3. Redeploy after saving.
+
+For local development with `npm start`, copy `.env.example` to `.env` and set `REACT_APP_MARVEL_*`, or run `npx vercel dev` to use the `/api/comics` proxy.
+
 ## Setup
 
 Clone

@@ -11,3 +11,17 @@
 body {
   background-color: var(--black);
 }
+
+.status {
+  color: var(--white);
+  text-align: center;
+  margin: 2rem 1rem;
+  font-family: system-ui, sans-serif;
+}
+
+.status--error {
+  color: var(--red);
+  max-width: 40rem;
+  margin-left: auto;
+  margin-right: auto;
+}

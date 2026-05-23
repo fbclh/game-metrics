@@ -1,51 +1,74 @@
 import { useEffect, useState } from 'react';
-import { API } from '../api/API';
+import { fetchComics } from '../api/API';
 import { Comics } from '../components/Comics';
 import { Header } from '../components/Header';
 import { Pagination } from '../components/Pagination';
 
 export const Home = () => {
-  const [searchResults, setSearchResults] = useState([]);
-  const [searchCharacter, setSearchCharacter] = useState('');
-  const [characters, setCharacters] = useState('');
+  const [comics, setComics] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [inputValue, setInputValue] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (searchResults.length === 0) {
-      API.get()
-        .then((response) => {
-          setSearchResults(response.data.data.results);
-        })
-        .catch((err) => console.log(err));
-    } else {
-      console.log('searchResults', searchResults);
-    }
-  }, [searchResults]);
+    let cancelled = false;
+
+    fetchComics()
+      .then((response) => {
+        if (cancelled) return;
+        setComics(response.data.data.results);
+        setError(null);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        const message =
+          err.response?.data?.message ||
+          err.response?.data?.code ||
+          err.message ||
+          'Failed to load comics.';
+        setError(message);
+        setComics([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleOnChange = (e) => {
-    setCharacters(e.target.value);
-    setSearchCharacter(characters);
+    setInputValue(e.target.value);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setSearchCharacter(characters);
-    setCharacters('');
+    setSearchQuery(inputValue.trim());
+    setInputValue('');
   };
 
-  const displayCharacters = searchCharacter
-    ? searchResults.filter((result) =>
-        result.title.toLowerCase().includes(searchCharacter.toLowerCase()),
+  const displayComics = searchQuery
+    ? comics.filter((comic) =>
+        comic.title.toLowerCase().includes(searchQuery.toLowerCase()),
       )
-    : searchResults;
+    : comics;
 
   return (
     <>
       <Header
-        characters={characters}
+        characters={inputValue}
         handleOnChange={handleOnChange}
         handleSubmit={handleSubmit}
       />
-      <Comics comics={displayCharacters} />
+      {loading && <p className="status">Loading comics…</p>}
+      {error && (
+        <p className="status status--error" role="alert">
+          {error}
+        </p>
+      )}
+      {!loading && !error && <Comics comics={displayComics} />}
       <Pagination />
     </>
   );
