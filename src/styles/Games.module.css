@@ -1,13 +1,16 @@
 .section {
   display: flex;
-  margin: 10rem 5rem 0 5rem;
-  background-color: var(--black2);
+  justify-content: center;
+  width: 100%;
+  background-color: #fff;
 }
 
 .ul {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  width: 100%;
+  max-width: var(--cards-grid-width);
   margin-top: 2rem;
   margin-bottom: 0;
   padding: 0;
