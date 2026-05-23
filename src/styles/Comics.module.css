@@ -1,0 +1,25 @@
+.section {
+  display: flex;
+  margin: 10rem 5rem 0 5rem;
+  background-color: var(--black2);
+}
+
+.ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 2rem;
+  margin-bottom: 0;
+  padding: 0;
+  gap: 1.25rem;
+  list-style: none;
+}
+
+.li {
+  cursor: pointer;
+}
+
+.img {
+  width: 190px;
+  height: 274px;
+}

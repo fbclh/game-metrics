@@ -1,0 +1,13 @@
+* {
+  /* border: 1px solid red; */ /* For debugging */
+}
+
+:root {
+  --red: hsla(0, 85%, 56%, 0.95);
+  --black: hsl(0, 0%, 15%);
+  --white: hsl(0, 0%, 96%);
+}
+
+body {
+  background-color: var(--black);
+}

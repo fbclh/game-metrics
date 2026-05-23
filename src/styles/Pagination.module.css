@@ -1,0 +1,20 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 3rem;
+  margin-right: 7.25rem;
+  margin-bottom: 3rem;
+  margin-left: 7.25rem;
+  gap: 1.25rem;
+}
+
+.button {
+  padding: 0.5rem;
+  border: none;
+  background-color: var(--white);
+  color: var(--red);
+  font-size: 1.25rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
