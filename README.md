@@ -6,7 +6,7 @@ Marvel Metrics is an app that allows the user to scroll through all the comics e
 
 ## Live Demo
 
-[marvel-metrics-fbclh.vercel.app](https://marvel-metrics-fbclh.vercel.app/)
+[marvel-metrics.vercel.app](https://marvel-metrics.vercel.app/)
 
 ## Built With
 
