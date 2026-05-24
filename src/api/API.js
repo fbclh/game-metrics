@@ -9,7 +9,9 @@ export const fetchGames = ({ search, page, pageSize } = {}) => {
   const params = {
     page_size: pageSize || GAMES_PAGE_SIZE,
     ...(page && { page }),
-    ...(search ? { search } : { ordering: '-released' }),
+    ...(search
+      ? { search, search_precise: true }
+      : { ordering: '-released' }),
   };
 
   if (useDirectApi) {

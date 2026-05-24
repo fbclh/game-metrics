@@ -20,6 +20,7 @@ module.exports = async (req, res) => {
 
   if (search) {
     url.searchParams.set('search', String(search));
+    url.searchParams.set('search_precise', 'true');
   } else {
     url.searchParams.set('ordering', '-released');
   }
