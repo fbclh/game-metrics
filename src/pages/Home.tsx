@@ -55,6 +55,16 @@ export const Home = () => {
     };
   }, [activeSearch, page]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const search = params.get('search');
+    if (search) {
+      setInputValue(search);
+      setActiveSearch(search.trim());
+      setPage(1);
+    }
+  }, []);
+
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };

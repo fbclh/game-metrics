@@ -16,12 +16,28 @@ type PlaylistResponse = {
   error?: string;
 };
 
+type Recommendation = {
+  name: string;
+  reason: string;
+};
+
+type RecommendationsResponse = {
+  recommendations: Recommendation[];
+  message?: string;
+  error?: string;
+};
+
 export default function PlaylistPage() {
   const [items, setItems] = useState<PlayListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<PlayListStatus>('want_to_play');
   const [pendingRemoveId, setPendingRemoveId] = useState<number | null>(null);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [recommendationsLoading, setRecommendationsLoading] = useState(true);
+  const [recommendationsMessage, setRecommendationsMessage] = useState<
+    string | null
+  >(null);
 
   const loadPlaylist = useCallback(async () => {
     setLoading(true);
@@ -44,6 +60,43 @@ export default function PlaylistPage() {
   useEffect(() => {
     loadPlaylist();
   }, [loadPlaylist]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadRecommendations() {
+      setRecommendationsLoading(true);
+      setRecommendationsMessage(null);
+
+      try {
+        const response = await fetch('/api/recommendations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: getSessionId() }),
+        });
+        const result = (await response.json()) as RecommendationsResponse;
+
+        if (cancelled) return;
+
+        setRecommendations(result.recommendations ?? []);
+        setRecommendationsMessage(result.message ?? null);
+      } catch {
+        if (!cancelled) {
+          setRecommendations([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setRecommendationsLoading(false);
+        }
+      }
+    }
+
+    loadRecommendations();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const tabItems = items.filter((item) => item.status === activeTab);
 
@@ -138,6 +191,55 @@ export default function PlaylistPage() {
             );
           })}
         </div>
+
+        <section className="mb-8 rounded-xl border border-gray-800 bg-gray-900/40 p-5">
+          <h2 className="mb-4 text-lg font-semibold">Recommended for You</h2>
+
+          {recommendationsLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="animate-pulse rounded-lg bg-gray-800/60 p-4"
+                >
+                  <div className="mb-2 h-4 w-1/3 rounded bg-gray-700" />
+                  <div className="h-3 w-full rounded bg-gray-700" />
+                  <div className="mt-2 h-3 w-2/3 rounded bg-gray-700" />
+                </div>
+              ))}
+            </div>
+          ) : !loading && items.length === 0 ? (
+            <p className="text-sm text-gray-400">
+              Save some games to your list to get AI recommendations
+            </p>
+          ) : recommendations.length > 0 ? (
+            <div className="grid gap-4 md:grid-cols-3">
+              {recommendations.map((item) => (
+                <article
+                  key={item.name}
+                  className="rounded-lg border border-gray-800 bg-[#0d0d14] p-4"
+                >
+                  <h3 className="font-semibold text-white">{item.name}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-gray-400">
+                    {item.reason}
+                  </p>
+                  <Link
+                    href={`/?search=${encodeURIComponent(item.name)}`}
+                    className="mt-3 inline-block text-sm text-indigo-400 transition hover:text-indigo-300"
+                  >
+                    Search for this game
+                  </Link>
+                </article>
+              ))}
+            </div>
+          ) : recommendationsMessage ? (
+            <p className="text-sm text-gray-400">{recommendationsMessage}</p>
+          ) : (
+            <p className="text-sm text-gray-400">
+              Save some games to your list to get AI recommendations
+            </p>
+          )}
+        </section>
 
         {loading ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
