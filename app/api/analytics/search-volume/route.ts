@@ -1,22 +1,15 @@
 import { NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase';
-import type { SearchVolumeItem } from '@/types/analytics';
-
-type RpcRow = { date: string; count: number | string };
+import { createClient } from '@supabase/supabase-js';
 
 export async function GET() {
-  const supabase = createServerClient();
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
   const { data, error } = await supabase.rpc('analytics_search_volume');
-
   if (error) {
-    console.error('Analytics error:', JSON.stringify(error));
+    console.error('search-volume error:', JSON.stringify(error));
     return NextResponse.json({ data: null }, { status: 500 });
   }
-
-  const result: SearchVolumeItem[] = ((data ?? []) as RpcRow[]).map((row) => ({
-    date: row.date,
-    count: Number(row.count),
-  }));
-
-  return NextResponse.json({ data: result });
+  return NextResponse.json({ data });
 }

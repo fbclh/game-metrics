@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { isPlayListStatus } from '@/types/playlist';
 
 type RouteContext = {
@@ -58,6 +58,11 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     );
   }
 
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
+
   const { error } = await supabase
     .from('play_list')
     .update({ status })
@@ -92,6 +97,11 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
       { status: 400 },
     );
   }
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
 
   const { error } = await supabase
     .from('play_list')

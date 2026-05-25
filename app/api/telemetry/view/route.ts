@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 type ViewTelemetryBody = {
   game_id?: unknown;
@@ -45,7 +45,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const supabase = createServerClient();
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
   const { error } = await supabase.from('game_views').insert({
     session_id: sessionId,
     game_id: gameId,

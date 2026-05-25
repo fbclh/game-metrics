@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { defaultListStats, type ListStats } from '@/types/analytics';
 
 type RpcRow = {
@@ -10,11 +10,13 @@ type RpcRow = {
 };
 
 export async function GET() {
-  const supabase = createServerClient();
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
   const { data, error } = await supabase.rpc('analytics_list_stats');
-
   if (error) {
-    console.error('Analytics error:', JSON.stringify(error));
+    console.error('list-stats error:', JSON.stringify(error));
     return NextResponse.json({ data: null }, { status: 500 });
   }
 

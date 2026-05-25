@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import {
   isPlayListStatus,
   type PlayListItem,
@@ -22,6 +22,11 @@ export async function GET(request: NextRequest) {
       { status: 400 },
     );
   }
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
 
   const { data, error } = await supabase
     .from('play_list')
@@ -98,6 +103,11 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
 
   const { data, error } = await supabase
     .from('play_list')
