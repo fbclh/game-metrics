@@ -133,35 +133,3 @@
   grant execute on function analytics_trending() to anon;
   grant execute on function analytics_list_stats() to anon;
 */
-
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-
-export function createServerClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  return createClient(url, key);
-}
-
-let supabaseClient: SupabaseClient | null = null;
-
-function initSupabaseClient(): SupabaseClient {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error(
-      'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.',
-    );
-  }
-
-  return createClient(supabaseUrl, supabaseAnonKey);
-}
-
-export const supabase: SupabaseClient = new Proxy({} as SupabaseClient, {
-  get(_target, prop, receiver) {
-    if (!supabaseClient) {
-      supabaseClient = initSupabaseClient();
-    }
-    return Reflect.get(supabaseClient, prop, receiver);
-  },
-});

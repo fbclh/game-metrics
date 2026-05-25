@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { PLAYLIST_STATUS_LABELS, type PlayListStatus } from '@/types/playlist';
+import type { PlayListStatus } from '@/types/playlist';
 
 type RecommendationsBody = {
   session_id?: unknown;
@@ -16,15 +16,107 @@ type Recommendation = {
   reason: string;
 };
 
-function parseRecommendations(text: string): Recommendation[] {
-  const cleaned = text.replace(/```json\n?/g, '').replace(/```/g, '').trim();
-  const parsed = JSON.parse(cleaned) as Recommendation[];
+const GENRE_RECOMMENDATIONS: Record<string, string[]> = {
+  zelda: ['Okami', 'Tunic', 'Hyper Light Drifter'],
+  mario: ['Kirby and the Forgotten Land', 'Rayman Legends', "Yoshi's Crafted World"],
+  metroid: ['Hollow Knight', 'Ori and the Blind Forest', 'Axiom Verge'],
+  pokemon: ['Cassette Beasts', 'Temtem', 'Coromon'],
+  halo: ['Destiny 2', 'Titanfall 2', 'Splitgate'],
+  fifa: ['Rocket League', 'Mario Strikers', 'Captain Tsubasa'],
+};
 
-  if (!Array.isArray(parsed)) {
-    throw new Error('Gemini response was not a JSON array.');
+const DEFAULT_RECOMMENDATIONS = ['Hollow Knight', 'Celeste', 'Hades'];
+
+const REASON_TEMPLATES: Record<string, string> = {
+  zelda:
+    'If you enjoyed {game}, you will appreciate the exploration and puzzle-driven adventure here.',
+  mario:
+    'Since {game} is in your library, this platformer matches that same playful, polished style.',
+  metroid:
+    'Your taste for {game} points toward this action-exploration game with tight movement and discovery.',
+  pokemon:
+    'With {game} on your list, this creature-collection RPG should feel like a natural next step.',
+  halo: 'Given {game} in your library, this sci-fi shooter delivers similar fast-paced combat.',
+  fifa: 'Because you have {game}, this competitive sports title fits your library well.',
+  default:
+    'Based on titles like {game} in your library, this acclaimed game is a strong match for you.',
+};
+
+function normalizeName(name: string): string {
+  return name.trim().toLowerCase();
+}
+
+function isInLibrary(candidate: string, libraryNames: Set<string>): boolean {
+  const normalized = normalizeName(candidate);
+  for (const name of Array.from(libraryNames)) {
+    if (name === normalized || name.includes(normalized) || normalized.includes(name)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function findMatchingFranchise(gameName: string): string | null {
+  const lower = gameName.toLowerCase();
+  for (const franchise of Object.keys(GENRE_RECOMMENDATIONS)) {
+    if (lower.includes(franchise)) {
+      return franchise;
+    }
+  }
+  return null;
+}
+
+function buildRecommendations(playlist: PlaylistRow[]): Recommendation[] {
+  const libraryNames = new Set(playlist.map((game) => normalizeName(game.game_name)));
+  const franchiseToSourceGame = new Map<string, string>();
+
+  for (const game of playlist) {
+    const franchise = findMatchingFranchise(game.game_name);
+    if (franchise && !franchiseToSourceGame.has(franchise)) {
+      franchiseToSourceGame.set(franchise, game.game_name);
+    }
   }
 
-  return parsed;
+  const candidates: { name: string; franchise: string; sourceGame: string }[] =
+    [];
+
+  if (franchiseToSourceGame.size > 0) {
+    for (const [franchise, sourceGame] of Array.from(franchiseToSourceGame.entries())) {
+      for (const name of GENRE_RECOMMENDATIONS[franchise]) {
+        candidates.push({ name, franchise, sourceGame });
+      }
+    }
+  } else {
+    const sourceGame = playlist[0].game_name;
+    for (const name of DEFAULT_RECOMMENDATIONS) {
+      candidates.push({ name, franchise: 'default', sourceGame });
+    }
+  }
+
+  const recommendations: Recommendation[] = [];
+  const seen = new Set<string>();
+
+  for (const candidate of candidates) {
+    const key = normalizeName(candidate.name);
+    if (seen.has(key) || isInLibrary(candidate.name, libraryNames)) {
+      continue;
+    }
+
+    seen.add(key);
+    const template =
+      REASON_TEMPLATES[candidate.franchise] ?? REASON_TEMPLATES.default;
+
+    recommendations.push({
+      name: candidate.name,
+      reason: template.replace('{game}', candidate.sourceGame),
+    });
+
+    if (recommendations.length >= 3) {
+      break;
+    }
+  }
+
+  return recommendations;
 }
 
 export async function POST(request: Request) {
@@ -64,62 +156,7 @@ export async function POST(request: Request) {
       });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json(
-        { recommendations: [], error: 'GEMINI_API_KEY is not configured.' },
-        { status: 500 },
-      );
-    }
-
-    const libraryLines = (playlist as PlaylistRow[])
-      .map(
-        (game) =>
-          `- ${game.game_name} (${PLAYLIST_STATUS_LABELS[game.status]})`,
-      )
-      .join('\n');
-
-    const prompt = `The user has these games in their library:
-${libraryLines}
-Based on their taste, recommend 3 games they might enjoy next.
-For each recommendation provide: name, reason (2 sentences max).
-Respond only with a JSON array, no markdown, no backticks:
-[{ "name": string, "reason": string }]`;
-
-    const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-        }),
-      },
-    );
-
-    const geminiData = await geminiResponse.json();
-
-    if (!geminiResponse.ok) {
-      const message =
-        geminiData.error?.message ||
-        geminiData.message ||
-        'Gemini API request failed.';
-      return NextResponse.json(
-        { recommendations: [], error: message },
-        { status: 500 },
-      );
-    }
-
-    const text = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (typeof text !== 'string') {
-      return NextResponse.json(
-        { recommendations: [], error: 'Gemini returned an empty response.' },
-        { status: 500 },
-      );
-    }
-
-    const recommendations = parseRecommendations(text);
+    const recommendations = buildRecommendations(playlist as PlaylistRow[]);
 
     return NextResponse.json({ recommendations });
   } catch (error) {
