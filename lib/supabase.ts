@@ -51,6 +51,87 @@
     on play_list for update to anon using (true);
   create policy "anon delete play_list"
     on play_list for delete to anon using (true);
+
+  -- Analytics RPC functions (Step 4 — run after tables exist)
+  create or replace function analytics_top_searches()
+  returns table (query text, count bigint)
+  language sql
+  security definer
+  set search_path = public
+  as $$
+    select query, count(*) as count
+    from search_events
+    group by query
+    order by count desc
+    limit 10;
+  $$;
+
+  create or replace function analytics_top_games()
+  returns table (game_id integer, game_name text, count bigint)
+  language sql
+  security definer
+  set search_path = public
+  as $$
+    select game_id, game_name, count(*) as count
+    from game_views
+    group by game_id, game_name
+    order by count desc
+    limit 10;
+  $$;
+
+  create or replace function analytics_search_volume()
+  returns table (date text, count bigint)
+  language sql
+  security definer
+  set search_path = public
+  as $$
+    select
+      to_char(date_trunc('day', created_at), 'YYYY-MM-DD') as date,
+      count(*) as count
+    from search_events
+    where created_at >= now() - interval '30 days'
+    group by date_trunc('day', created_at)
+    order by date_trunc('day', created_at) asc;
+  $$;
+
+  create or replace function analytics_trending()
+  returns table (query text, count bigint)
+  language sql
+  security definer
+  set search_path = public
+  as $$
+    select query, count(*) as count
+    from search_events
+    where created_at >= now() - interval '7 days'
+    group by query
+    order by count desc
+    limit 10;
+  $$;
+
+  create or replace function analytics_list_stats()
+  returns table (
+    want_to_play bigint,
+    playing bigint,
+    finished bigint,
+    total bigint
+  )
+  language sql
+  security definer
+  set search_path = public
+  as $$
+    select
+      count(*) filter (where status = 'want_to_play') as want_to_play,
+      count(*) filter (where status = 'playing') as playing,
+      count(*) filter (where status = 'finished') as finished,
+      count(*) as total
+    from play_list;
+  $$;
+
+  grant execute on function analytics_top_searches() to anon;
+  grant execute on function analytics_top_games() to anon;
+  grant execute on function analytics_search_volume() to anon;
+  grant execute on function analytics_trending() to anon;
+  grant execute on function analytics_list_stats() to anon;
 */
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';

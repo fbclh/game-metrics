@@ -3,12 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { getSessionId } from '@/lib/session';
-import {
-  PLAYLIST_STATUS_LABELS,
-  PLAYLIST_TABS,
-  type PlayListItem,
-  type PlayListStatus,
-} from '@/types/playlist';
+import type { PlayListItem } from '@/types/playlist';
 
 const badgeStyle = {
   display: 'inline-grid',
@@ -72,6 +67,12 @@ export function Nav() {
             {listCount}
           </span>
         )}
+      </Link>
+      <Link
+        href="/analytics"
+        className="text-sm text-white/80 transition hover:text-white"
+      >
+        Dashboard
       </Link>
     </div>
   );
