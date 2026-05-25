@@ -1,24 +1,22 @@
 import { NextResponse } from 'next/server';
-import {
-  analyticsErrorResponse,
-  callAnalyticsRpc,
-} from '@/lib/analytics';
+import { createServerClient } from '@/lib/supabase';
 import type { TrendingItem } from '@/types/analytics';
 
 type RpcRow = { query: string; count: number | string };
 
 export async function GET() {
-  try {
-    const rows = await callAnalyticsRpc<RpcRow[]>('analytics_trending');
-    const data: TrendingItem[] = (rows ?? []).map((row) => ({
-      query: row.query,
-      count: Number(row.count),
-    }));
+  const supabase = createServerClient();
+  const { data, error } = await supabase.rpc('analytics_trending');
 
-    return NextResponse.json({ data });
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to load trending searches.';
-    return analyticsErrorResponse(message);
+  if (error) {
+    console.error('Analytics error:', JSON.stringify(error));
+    return NextResponse.json({ data: null }, { status: 500 });
   }
+
+  const result: TrendingItem[] = ((data ?? []) as RpcRow[]).map((row) => ({
+    query: row.query,
+    count: Number(row.count),
+  }));
+
+  return NextResponse.json({ data: result });
 }

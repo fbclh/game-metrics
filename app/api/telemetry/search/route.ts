@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createServerClient } from '@/lib/supabase';
 
 type SearchTelemetryBody = {
   query?: unknown;
@@ -36,6 +36,7 @@ export async function POST(request: Request) {
     );
   }
 
+  const supabase = createServerClient();
   const { error } = await supabase.from('search_events').insert({
     session_id: sessionId,
     query,
