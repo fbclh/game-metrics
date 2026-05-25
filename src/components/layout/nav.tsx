@@ -3,7 +3,7 @@ const badgeStyle = {
   placeItems: 'center',
   backgroundColor: '#e60012',
   color: '#fff',
-  fontFamily: '"Press Start 2P", cursive',
+  fontFamily: 'var(--font-press-start-2p), cursive',
   fontSize: '1.5rem',
   border: '6px solid #fff',
   borderRadius: '999px',

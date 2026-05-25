@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { fetchGames, GAMES_PAGE_SIZE, type Game } from '../api/API';
+import { getSessionId } from '@/lib/session';
 import { Games } from '../components/Games';
 import { Header } from '../components/Header';
 import { Pagination } from '../components/Pagination';
@@ -60,8 +61,20 @@ export const Home = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const query = inputValue.trim();
     setPage(1);
-    setActiveSearch(inputValue.trim());
+    setActiveSearch(query);
+
+    if (query) {
+      fetch('/api/telemetry/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query,
+          session_id: getSessionId(),
+        }),
+      }).catch(() => {});
+    }
   };
 
   const handlePageSelect = (pageNumber: number) => {
