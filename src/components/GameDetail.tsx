@@ -1,15 +1,36 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getSessionId } from '@/lib/session';
 import type { GameDetailData } from '@/src/types/game-detail';
+import {
+  PLAYLIST_STATUS_LABELS,
+  PLAYLIST_TABS,
+  type PlayListItem,
+  type PlayListStatus,
+} from '@/types/playlist';
 
 type GameDetailProps = {
   game: GameDetailData;
 };
 
+type PlaylistResponse = {
+  ok: boolean;
+  data?: PlayListItem[];
+};
+
+type SaveResponse = {
+  ok: boolean;
+  data?: PlayListItem;
+};
+
 export function GameDetail({ game }: GameDetailProps) {
+  const [savedStatus, setSavedStatus] = useState<PlayListStatus | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     fetch('/api/telemetry/view', {
       method: 'POST',
@@ -21,6 +42,66 @@ export function GameDetail({ game }: GameDetailProps) {
       }),
     }).catch(() => {});
   }, [game.id, game.name]);
+
+  useEffect(() => {
+    const sessionId = getSessionId();
+    fetch(`/api/playlist?session_id=${encodeURIComponent(sessionId)}`)
+      .then((response) => response.json())
+      .then((result: PlaylistResponse) => {
+        if (!result.ok || !result.data) return;
+        const existing = result.data.find((item) => item.game_id === game.id);
+        if (existing) {
+          setSavedStatus(existing.status);
+        }
+      })
+      .catch(() => {});
+  }, [game.id]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node)
+      ) {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [menuOpen]);
+
+  const handleSave = async (status: PlayListStatus) => {
+    setSaving(true);
+    try {
+      const response = await fetch('/api/playlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          game_id: game.id,
+          game_name: game.name,
+          cover_url: game.background_image ?? null,
+          status,
+          session_id: getSessionId(),
+        }),
+      });
+      const result = (await response.json()) as SaveResponse;
+      if (result.ok) {
+        setSavedStatus(status);
+        setMenuOpen(false);
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const buttonLabel = saving
+    ? 'Saving…'
+    : savedStatus
+      ? `${PLAYLIST_STATUS_LABELS[savedStatus]} ✓`
+      : 'Save to List';
 
   const genres = game.genres?.map((genre) => genre.name).join(', ');
   const screenshots = game.screenshots ?? [];
@@ -61,12 +142,38 @@ export function GameDetail({ game }: GameDetailProps) {
             </div>
           </div>
 
-          <button
-            type="button"
-            className="shrink-0 rounded border border-[#e60012] bg-[#e60012] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#bf0010]"
-          >
-            Save to List
-          </button>
+          <div className="relative shrink-0" ref={menuRef}>
+            <button
+              type="button"
+              disabled={saving}
+              onClick={() => setMenuOpen((open) => !open)}
+              className="rounded border border-[#e60012] bg-[#e60012] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#bf0010] disabled:cursor-wait disabled:opacity-70"
+            >
+              {buttonLabel}
+            </button>
+
+            {menuOpen && !saving && (
+              <div className="absolute right-0 z-10 mt-2 min-w-[11rem] overflow-hidden rounded border border-gray-700 bg-[#161622] shadow-lg">
+                {PLAYLIST_TABS.map((tab) => (
+                  <button
+                    key={tab.status}
+                    type="button"
+                    onClick={() => handleSave(tab.status)}
+                    className={`block w-full px-4 py-2.5 text-left text-sm transition hover:bg-gray-800 ${
+                      savedStatus === tab.status
+                        ? 'bg-gray-800/80 text-white'
+                        : 'text-gray-200'
+                    }`}
+                  >
+                    {tab.label}
+                    {savedStatus === tab.status && (
+                      <span className="ml-1 text-[#e60012]">✓</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {game.description_raw && (

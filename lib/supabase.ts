@@ -29,6 +29,9 @@
     created_at  timestamptz default now()
   );
 
+  alter table play_list
+    add constraint play_list_session_game_unique unique (session_id, game_id);
+
   -- RLS policies (required for anonymous telemetry inserts)
   alter table search_events enable row level security;
   create policy "anon insert search_events"
@@ -37,6 +40,17 @@
   alter table game_views enable row level security;
   create policy "anon insert game_views"
     on game_views for insert to anon with check (true);
+
+  -- RLS policies (required for play list CRUD via anon key)
+  alter table play_list enable row level security;
+  create policy "anon select play_list"
+    on play_list for select to anon using (true);
+  create policy "anon insert play_list"
+    on play_list for insert to anon with check (true);
+  create policy "anon update play_list"
+    on play_list for update to anon using (true);
+  create policy "anon delete play_list"
+    on play_list for delete to anon using (true);
 */
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
