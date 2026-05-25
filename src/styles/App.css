@@ -7,11 +7,17 @@
   --black: hsl(0, 0%, 15%);
   --white: hsl(0, 0%, 96%);
   --nav-red: #e60012;
+  --page-bg: #e5e7eb;
+  --surface: #ffffff;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --border: #e5e7eb;
   --cards-grid-width: calc(190px * 5 + 1.25rem * 4);
 }
 
 body {
-  background-color: #fff;
+  background-color: var(--page-bg);
+  color: var(--text-primary);
 }
 
 .status {

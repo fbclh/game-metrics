@@ -10,6 +10,7 @@ import {
   type PlayListItem,
   type PlayListStatus,
 } from '@/types/playlist';
+import { SubpageHeader } from '@/src/components/layout/SubpageHeader';
 
 type GameDetailProps = {
   game: GameDetailData;
@@ -107,7 +108,8 @@ export function GameDetail({ game }: GameDetailProps) {
   const screenshots = game.screenshots ?? [];
 
   return (
-    <div className="min-h-screen bg-[#0d0d14] text-white">
+    <div className="min-h-screen bg-[#e5e7eb] text-gray-900">
+      <SubpageHeader />
       {game.background_image && (
         <div className="relative w-full">
           <img
@@ -115,23 +117,25 @@ export function GameDetail({ game }: GameDetailProps) {
             alt={game.name}
             className="h-72 w-full object-cover md:h-96"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d14] to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#e5e7eb] to-transparent" />
         </div>
       )}
 
-      <div className="mx-auto max-w-4xl px-4 py-6 md:px-6">
+      <div className="mx-auto max-w-4xl px-4 py-6 pb-12 md:px-6">
         <Link
           href="/"
-          className="mb-6 inline-flex items-center gap-2 text-sm text-gray-300 transition hover:text-white"
+          className="mb-6 inline-flex items-center gap-2 text-sm text-gray-600 transition hover:text-gray-900"
         >
           <span aria-hidden="true">←</span>
-          Back to games
+          Back to Games
         </Link>
 
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div className="mb-8 flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm md:flex-row md:items-start md:justify-between">
           <div>
-            <h1 className="text-2xl font-bold md:text-3xl">{game.name}</h1>
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-gray-300">
+            <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">
+              {game.name}
+            </h1>
+            <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-gray-600">
               {game.released && <span>{game.released}</span>}
               {game.metacritic != null && game.metacritic > 0 && (
                 <span className="rounded bg-[#6c9a2c] px-2 py-0.5 font-bold text-white">
@@ -153,16 +157,16 @@ export function GameDetail({ game }: GameDetailProps) {
             </button>
 
             {menuOpen && !saving && (
-              <div className="absolute right-0 z-10 mt-2 min-w-[11rem] overflow-hidden rounded border border-gray-700 bg-[#161622] shadow-lg">
+              <div className="absolute right-0 z-10 mt-2 min-w-[11rem] overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
                 {PLAYLIST_TABS.map((tab) => (
                   <button
                     key={tab.status}
                     type="button"
                     onClick={() => handleSave(tab.status)}
-                    className={`block w-full px-4 py-2.5 text-left text-sm transition hover:bg-gray-800 ${
+                    className={`block w-full px-4 py-2.5 text-left text-sm transition hover:bg-gray-50 ${
                       savedStatus === tab.status
-                        ? 'bg-gray-800/80 text-white'
-                        : 'text-gray-200'
+                        ? 'bg-gray-50 font-medium text-gray-900'
+                        : 'text-gray-700'
                     }`}
                   >
                     {tab.label}
@@ -177,17 +181,19 @@ export function GameDetail({ game }: GameDetailProps) {
         </div>
 
         {game.description_raw && (
-          <section className="mb-10">
-            <h2 className="mb-3 text-lg font-semibold">About</h2>
-            <p className="whitespace-pre-line leading-relaxed text-gray-300">
+          <section className="mb-10 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h2 className="mb-3 text-lg font-semibold text-gray-900">About</h2>
+            <p className="whitespace-pre-line leading-relaxed text-gray-700">
               {game.description_raw}
             </p>
           </section>
         )}
 
         {screenshots.length > 0 && (
-          <section>
-            <h2 className="mb-4 text-lg font-semibold">Screenshots</h2>
+          <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h2 className="mb-4 text-lg font-semibold text-gray-900">
+              Screenshots
+            </h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {screenshots.map((shot) => (
                 <img

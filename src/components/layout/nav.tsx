@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { getSessionId } from '@/lib/session';
 import type { PlayListItem } from '@/types/playlist';
@@ -34,8 +35,21 @@ type PlaylistResponse = {
 };
 
 export function Nav() {
+  const pathname = usePathname();
   const [listCount, setListCount] = useState(0);
   const fetchedRef = useRef(false);
+
+  const navLinkClass = (href: string) => {
+    const currentPath = pathname ?? '/';
+    const isActive =
+      href === '/'
+        ? currentPath === '/'
+        : currentPath === href || currentPath.startsWith(`${href}/`);
+
+    return isActive
+      ? 'text-sm font-semibold text-white underline decoration-white/60 underline-offset-4'
+      : 'text-sm text-white/80 transition hover:text-white';
+  };
 
   useEffect(() => {
     if (fetchedRef.current) return;
@@ -54,13 +68,14 @@ export function Nav() {
 
   return (
     <div className="flex items-center gap-4">
-      <span style={badgeStyle}>
-        <span style={textStyle}>Game</span>
-      </span>
       <Link
-        href="/playlist"
-        className="relative inline-flex items-center gap-1.5 text-sm text-white/80 transition hover:text-white"
+        href="/"
+        style={{ ...badgeStyle, textDecoration: 'none' }}
+        aria-label="Game Metrics home"
       >
+        <span style={textStyle}>Game</span>
+      </Link>
+      <Link href="/playlist" className={`relative inline-flex items-center gap-1.5 ${navLinkClass('/playlist')}`}>
         My List
         {listCount > 0 && (
           <span className="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-white/15 px-1.5 py-0.5 text-xs font-semibold text-white">
@@ -68,10 +83,7 @@ export function Nav() {
           </span>
         )}
       </Link>
-      <Link
-        href="/analytics"
-        className="text-sm text-white/80 transition hover:text-white"
-      >
+      <Link href="/analytics" className={navLinkClass('/analytics')}>
         Dashboard
       </Link>
     </div>

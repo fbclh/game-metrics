@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import {
   Area,
@@ -31,6 +32,7 @@ import {
   type TrendingItem,
   type TrendingResponse,
 } from '@/types/analytics';
+import { SubpageHeader } from '@/src/components/layout/SubpageHeader';
 
 function truncateLabel(value: string, max = 12): string {
   return value.length > max ? `${value.slice(0, max)}…` : value;
@@ -39,7 +41,7 @@ function truncateLabel(value: string, max = 12): string {
 function ChartSkeleton({ height = 300 }: { height?: number }) {
   return (
     <div
-      className="animate-pulse rounded-lg bg-gray-800/60"
+      className="animate-pulse rounded-lg bg-gray-200"
       style={{ height }}
     />
   );
@@ -64,9 +66,9 @@ function SectionCard({
 }) {
   return (
     <section
-      className={`rounded-xl border border-gray-800 bg-gray-900/40 p-5 ${className}`}
+      className={`rounded-xl border border-gray-200 bg-white p-5 shadow-sm ${className}`}
     >
-      <h2 className="mb-4 text-lg font-semibold text-white">{title}</h2>
+      <h2 className="mb-4 text-lg font-semibold text-gray-900">{title}</h2>
       {children}
     </section>
   );
@@ -142,11 +144,22 @@ export default function AnalyticsPage() {
   ].filter((item) => item.value > 0);
 
   return (
-    <div className="min-h-screen bg-[#0d0d14] text-white">
-      <div className="mx-auto max-w-7xl px-4 py-8 md:px-6">
+    <div className="min-h-screen bg-[#e5e7eb] text-gray-900">
+      <SubpageHeader />
+      <div className="mx-auto max-w-7xl px-4 py-8 pb-12 md:px-6">
+        <Link
+          href="/"
+          className="mb-6 inline-flex items-center gap-2 text-sm text-gray-600 transition hover:text-gray-900"
+        >
+          <span aria-hidden="true">←</span>
+          Back to Games
+        </Link>
+
         <header className="mb-8">
-          <h1 className="text-2xl font-bold md:text-3xl">Analytics Dashboard</h1>
-          <p className="mt-2 text-sm text-gray-400">
+          <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">
+            Analytics Dashboard
+          </h1>
+          <p className="mt-2 text-sm text-gray-600">
             Real usage data from searches, game views, and play lists.
           </p>
         </header>
@@ -169,7 +182,7 @@ export default function AnalyticsPage() {
                       <stop offset="95%" stopColor={CHART_COLORS.indigo} stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid stroke="transparent" />
+                  <CartesianGrid stroke={CHART_COLORS.grid} strokeDasharray="3 3" />
                   <XAxis dataKey="date" {...chartAxisStyle} />
                   <YAxis allowDecimals={false} {...chartAxisStyle} />
                   <Tooltip {...chartTooltipStyle} />
@@ -193,7 +206,7 @@ export default function AnalyticsPage() {
             ) : (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={topSearches} layout="vertical" margin={{ left: 20 }}>
-                  <CartesianGrid stroke="transparent" />
+                  <CartesianGrid stroke={CHART_COLORS.grid} strokeDasharray="3 3" />
                   <XAxis type="number" allowDecimals={false} {...chartAxisStyle} />
                   <YAxis
                     type="category"
@@ -216,7 +229,7 @@ export default function AnalyticsPage() {
             ) : (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={topGames}>
-                  <CartesianGrid stroke="transparent" />
+                  <CartesianGrid stroke={CHART_COLORS.grid} strokeDasharray="3 3" />
                   <XAxis
                     dataKey="game_name"
                     tickFormatter={(value) => truncateLabel(String(value))}
@@ -241,7 +254,7 @@ export default function AnalyticsPage() {
             {loading ? (
               <div className="space-y-3">
                 {Array.from({ length: 5 }).map((_, index) => (
-                  <div key={index} className="h-8 animate-pulse rounded bg-gray-800/60" />
+                  <div key={index} className="h-8 animate-pulse rounded bg-gray-200" />
                 ))}
               </div>
             ) : trending.length === 0 ? (
@@ -251,15 +264,15 @@ export default function AnalyticsPage() {
                 {trending.map((item, index) => (
                   <li
                     key={`${item.query}-${index}`}
-                    className="flex items-center justify-between rounded-lg bg-gray-800/40 px-4 py-3"
+                    className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-4 py-3"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-sm font-semibold text-indigo-400">
+                      <span className="text-sm font-semibold text-[#e60012]">
                         {index + 1}
                       </span>
-                      <span className="text-sm text-gray-200">{item.query}</span>
+                      <span className="text-sm text-gray-800">{item.query}</span>
                     </div>
-                    <span className="rounded-full bg-gray-700 px-2.5 py-0.5 text-xs font-medium text-gray-300">
+                    <span className="rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-200">
                       {item.count}
                     </span>
                   </li>
@@ -271,7 +284,7 @@ export default function AnalyticsPage() {
           <SectionCard title="My Library">
             {loading ? (
               <ChartSkeleton />
-            ) : listStats.total === 0 ? (
+            ) : listStats.total === 0 || pieData.length === 0 ? (
               <EmptyState />
             ) : (
               <ResponsiveContainer width="100%" height={300}>
@@ -296,7 +309,7 @@ export default function AnalyticsPage() {
                     y="50%"
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    fill="#ffffff"
+                    fill="#1f2937"
                     className="text-2xl font-bold"
                   >
                     {listStats.total}

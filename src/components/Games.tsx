@@ -19,7 +19,7 @@ export const Games = ({ games }: GamesProps) => {
         {sorted.map((game) => (
           <li className={styles.li} key={game.id}>
             <Link href={`/games/${game.id}`} className={styles.cardLink}>
-              {game.background_image ? (
+              {game.background_image?.trim() ? (
                 <img
                   className={styles.img}
                   src={game.background_image}

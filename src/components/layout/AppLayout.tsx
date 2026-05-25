@@ -8,6 +8,7 @@ const layoutStyle = {
 
 const mainStyle = {
   flex: 1,
+  paddingBottom: '1rem',
 };
 
 const footerStyle = {

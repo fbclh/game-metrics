@@ -36,19 +36,21 @@ export const CHART_COLORS = {
   indigo: '#6366f1',
   emerald: '#10b981',
   amber: '#f59e0b',
-  label: '#9ca3af',
-  tooltipBg: '#1f2937',
-  tooltipBorder: '#374151',
+  label: '#6b7280',
+  grid: '#e5e7eb',
+  tooltipBg: '#ffffff',
+  tooltipBorder: '#e5e7eb',
 } as const;
 
 export const chartTooltipStyle = {
   contentStyle: {
     backgroundColor: CHART_COLORS.tooltipBg,
     border: `1px solid ${CHART_COLORS.tooltipBorder}`,
-    borderRadius: '6px',
+    borderRadius: '8px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
   },
-  labelStyle: { color: CHART_COLORS.label },
-  itemStyle: { color: '#f3f4f6' },
+  labelStyle: { color: '#374151', fontWeight: 600 },
+  itemStyle: { color: '#1f2937' },
 };
 
 export const chartAxisStyle = {

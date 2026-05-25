@@ -9,6 +9,7 @@ import {
   type PlayListItem,
   type PlayListStatus,
 } from '@/types/playlist';
+import { SubpageHeader } from '@/src/components/layout/SubpageHeader';
 
 type PlaylistResponse = {
   ok: boolean;
@@ -147,24 +148,28 @@ export default function PlaylistPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d0d14] text-white">
-      <div className="mx-auto max-w-6xl px-4 py-8 md:px-6">
+    <div className="min-h-screen bg-[#e5e7eb] text-gray-900">
+      <SubpageHeader />
+      <div className="mx-auto max-w-6xl px-4 py-8 pb-12 md:px-6">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold md:text-3xl">My Play List</h1>
-            <p className="mt-2 text-sm text-gray-400">
+            <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">
+              My Play List
+            </h1>
+            <p className="mt-2 text-sm text-gray-600">
               Track games you want to play, are playing, or have finished.
             </p>
           </div>
           <Link
             href="/"
-            className="text-sm text-gray-300 transition hover:text-white"
+            className="inline-flex items-center gap-2 text-sm text-gray-600 transition hover:text-gray-900"
           >
-            ← Discover games
+            <span aria-hidden="true">←</span>
+            Back to Games
           </Link>
         </div>
 
-        <div className="mb-8 flex flex-wrap gap-2 border-b border-gray-800 pb-4">
+        <div className="mb-8 flex flex-wrap gap-2 border-b border-gray-300 pb-4">
           {PLAYLIST_TABS.map((tab) => {
             const count = items.filter((item) => item.status === tab.status).length;
             const isActive = activeTab === tab.status;
@@ -179,8 +184,8 @@ export default function PlaylistPage() {
                 }}
                 className={`rounded px-4 py-2 text-sm font-medium transition ${
                   isActive
-                    ? 'bg-[#e60012] text-white'
-                    : 'bg-gray-900 text-gray-300 hover:bg-gray-800 hover:text-white'
+                    ? 'bg-[#e60012] text-white shadow-sm'
+                    : 'bg-white text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50'
                 }`}
               >
                 {tab.label}
@@ -192,40 +197,42 @@ export default function PlaylistPage() {
           })}
         </div>
 
-        <section className="mb-8 rounded-xl border border-gray-800 bg-gray-900/40 p-5">
-          <h2 className="mb-4 text-lg font-semibold">Recommended for You</h2>
+        <section className="mb-8 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <h2 className="mb-4 text-lg font-semibold text-gray-900">
+            Recommended for You
+          </h2>
 
           {recommendationsLoading ? (
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, index) => (
                 <div
                   key={index}
-                  className="animate-pulse rounded-lg bg-gray-800/60 p-4"
+                  className="animate-pulse rounded-lg bg-gray-100 p-4"
                 >
-                  <div className="mb-2 h-4 w-1/3 rounded bg-gray-700" />
-                  <div className="h-3 w-full rounded bg-gray-700" />
-                  <div className="mt-2 h-3 w-2/3 rounded bg-gray-700" />
+                  <div className="mb-2 h-4 w-1/3 rounded bg-gray-200" />
+                  <div className="h-3 w-full rounded bg-gray-200" />
+                  <div className="mt-2 h-3 w-2/3 rounded bg-gray-200" />
                 </div>
               ))}
             </div>
           ) : !loading && items.length === 0 ? (
-            <p className="text-sm text-gray-400">
-              Save some games to your list to get AI recommendations
+            <p className="text-sm text-gray-600">
+              Save some games to your list to get recommendations
             </p>
           ) : recommendations.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-3">
               {recommendations.map((item) => (
                 <article
                   key={item.name}
-                  className="rounded-lg border border-gray-800 bg-[#0d0d14] p-4"
+                  className="rounded-lg border border-gray-100 bg-gray-50 p-4"
                 >
-                  <h3 className="font-semibold text-white">{item.name}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-gray-400">
+                  <h3 className="font-semibold text-gray-900">{item.name}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-gray-600">
                     {item.reason}
                   </p>
                   <Link
                     href={`/?search=${encodeURIComponent(item.name)}`}
-                    className="mt-3 inline-block text-sm text-indigo-400 transition hover:text-indigo-300"
+                    className="mt-3 inline-block text-sm font-medium text-[#e60012] transition hover:text-[#bf0010]"
                   >
                     Search for this game
                   </Link>
@@ -233,10 +240,10 @@ export default function PlaylistPage() {
               ))}
             </div>
           ) : recommendationsMessage ? (
-            <p className="text-sm text-gray-400">{recommendationsMessage}</p>
+            <p className="text-sm text-gray-600">{recommendationsMessage}</p>
           ) : (
-            <p className="text-sm text-gray-400">
-              Save some games to your list to get AI recommendations
+            <p className="text-sm text-gray-600">
+              Save some games to your list to get recommendations
             </p>
           )}
         </section>
@@ -246,21 +253,21 @@ export default function PlaylistPage() {
             {Array.from({ length: 4 }).map((_, index) => (
               <div
                 key={index}
-                className="animate-pulse rounded-lg bg-gray-900 p-3"
+                className="animate-pulse rounded-lg bg-white p-3 shadow-sm ring-1 ring-gray-200"
               >
-                <div className="mb-3 aspect-[190/274] rounded bg-gray-800" />
-                <div className="mb-2 h-4 rounded bg-gray-800" />
-                <div className="h-8 rounded bg-gray-800" />
+                <div className="mb-3 aspect-[190/274] rounded bg-gray-200" />
+                <div className="mb-2 h-4 rounded bg-gray-200" />
+                <div className="h-8 rounded bg-gray-200" />
               </div>
             ))}
           </div>
         ) : tabItems.length === 0 ? (
-          <div className="rounded-lg border border-gray-800 bg-gray-900/50 px-6 py-12 text-center">
-            <p className="text-lg text-gray-300">
+          <div className="rounded-xl border border-gray-200 bg-white px-6 py-12 text-center shadow-sm">
+            <p className="text-lg text-gray-800">
               No games in{' '}
               {PLAYLIST_STATUS_LABELS[activeTab].toLowerCase()} yet.
             </p>
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-gray-600">
               Browse the catalog and save games from their detail page.
             </p>
             <Link
@@ -275,7 +282,7 @@ export default function PlaylistPage() {
             {tabItems.map((item) => (
               <article
                 key={item.id}
-                className="flex flex-col rounded-lg border border-gray-800 bg-gray-900/60 p-3"
+                className="flex flex-col rounded-lg border border-gray-200 bg-white p-3 shadow-sm"
               >
                 <Link href={`/games/${item.game_id}`} className="block">
                   {item.cover_url ? (
@@ -285,16 +292,16 @@ export default function PlaylistPage() {
                       className="mb-3 aspect-[190/274] w-full rounded object-cover"
                     />
                   ) : (
-                    <div className="mb-3 flex aspect-[190/274] items-center justify-center rounded bg-gray-800 px-2 text-center text-sm text-gray-400">
+                    <div className="mb-3 flex aspect-[190/274] items-center justify-center rounded bg-gray-500 px-2 text-center text-sm font-medium text-white">
                       {item.game_name}
                     </div>
                   )}
-                  <h2 className="mb-2 line-clamp-2 text-sm font-semibold leading-snug">
+                  <h2 className="mb-2 line-clamp-2 text-sm font-semibold leading-snug text-gray-900">
                     {item.game_name}
                   </h2>
                 </Link>
 
-                <span className="mb-3 inline-flex w-fit rounded bg-gray-800 px-2 py-0.5 text-xs text-gray-300">
+                <span className="mb-3 inline-flex w-fit rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-700">
                   {PLAYLIST_STATUS_LABELS[item.status]}
                 </span>
 
@@ -308,7 +315,7 @@ export default function PlaylistPage() {
                         event.target.value as PlayListStatus,
                       )
                     }
-                    className="rounded border border-gray-700 bg-[#0d0d14] px-2 py-1.5 text-xs text-white"
+                    className="rounded border border-gray-300 bg-white px-2 py-1.5 text-xs text-gray-800"
                   >
                     {PLAYLIST_TABS.map((tab) => (
                       <option key={tab.status} value={tab.status}>
@@ -322,8 +329,8 @@ export default function PlaylistPage() {
                     onClick={() => handleRemove(item.game_id)}
                     className={`rounded px-2 py-1.5 text-xs font-medium transition ${
                       pendingRemoveId === item.game_id
-                        ? 'bg-red-700 text-white hover:bg-red-800'
-                        : 'border border-gray-700 text-gray-300 hover:border-red-700 hover:text-red-300'
+                        ? 'bg-red-600 text-white hover:bg-red-700'
+                        : 'border border-gray-300 text-gray-700 hover:border-red-500 hover:text-red-600'
                     }`}
                   >
                     {pendingRemoveId === item.game_id
