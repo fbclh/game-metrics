@@ -3,7 +3,7 @@ import { RawgAttribution } from './rawg-attribution';
 const layoutStyle = {
   minHeight: '100vh',
   display: 'flex',
-  flexDirection: 'column',
+  flexDirection: 'column' as const,
 };
 
 const mainStyle = {
@@ -25,7 +25,7 @@ const brandStyle = {
   color: '#fff',
 };
 
-export function AppLayout({ children }) {
+export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div style={layoutStyle}>
       <main style={mainStyle}>{children}</main>

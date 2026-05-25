@@ -1,8 +1,20 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { Nav } from './layout/nav';
 import styles from '../styles/Header.module.css';
 
-export const Header = ({ characters, handleOnChange, handleSubmit }) => {
+interface HeaderProps {
+  characters: string;
+  handleOnChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+}
+
+export const Header = ({
+  characters,
+  handleOnChange,
+  handleSubmit,
+}: HeaderProps) => {
   const [hidden, setHidden] = useState(false);
 
   useEffect(() => {

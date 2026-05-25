@@ -1,6 +1,11 @@
+import type { Game } from '../api/API';
 import styles from '../styles/Games.module.css';
 
-export const Games = ({ games }) => {
+interface GamesProps {
+  games: Game[];
+}
+
+export const Games = ({ games }: GamesProps) => {
   const sorted = [...games].sort((a, b) => b.id - a.id);
 
   if (sorted.length === 0) {
@@ -21,6 +26,17 @@ export const Games = ({ games }) => {
             ) : (
               <div className={styles.placeholder}>{game.name}</div>
             )}
+            <div className={styles.caption}>
+              <p className={styles.name}>{game.name}</p>
+              <div className={styles.meta}>
+                {game.metacritic != null && game.metacritic > 0 && (
+                  <span className={styles.metacritic}>{game.metacritic}</span>
+                )}
+                {game.released && (
+                  <span className={styles.year}>{game.released.slice(0, 4)}</span>
+                )}
+              </div>
+            </div>
           </li>
         ))}
       </ul>

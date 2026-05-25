@@ -3,12 +3,12 @@ const badgeStyle = {
   placeItems: 'center',
   backgroundColor: '#e60012',
   color: '#fff',
-  fontFamily: 'var(--font-press-start-2p), cursive',
+  fontFamily: '"Press Start 2P", cursive',
   fontSize: '1.5rem',
   border: '6px solid #fff',
   borderRadius: '999px',
   padding: '7px 12px',
-  boxSizing: 'border-box',
+  boxSizing: 'border-box' as const,
 };
 
 const textStyle = {
@@ -16,8 +16,8 @@ const textStyle = {
   margin: 0,
   padding: 0,
   lineHeight: 1,
-  textTransform: 'uppercase',
-  textAlign: 'center',
+  textTransform: 'uppercase' as const,
+  textAlign: 'center' as const,
   transform: 'translateY(2px)',
 };
 

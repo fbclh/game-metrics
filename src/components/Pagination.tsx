@@ -2,7 +2,7 @@ import styles from '../styles/Pagination.module.css';
 
 const MAX_VISIBLE_PAGES = 10;
 
-function getVisiblePages(currentPage, totalPages) {
+function getVisiblePages(currentPage: number, totalPages: number) {
   if (totalPages <= MAX_VISIBLE_PAGES) {
     return Array.from({ length: totalPages }, (_, index) => index + 1);
   }
@@ -16,6 +16,17 @@ function getVisiblePages(currentPage, totalPages) {
   return Array.from({ length: end - start + 1 }, (_, index) => start + index);
 }
 
+interface PaginationProps {
+  page: number;
+  pageCount: number;
+  onPageSelect: (pageNumber: number) => void;
+  onPrevious: () => void;
+  onNext: () => void;
+  hasPrevious: boolean;
+  hasNext: boolean;
+  disabled?: boolean;
+}
+
 export const Pagination = ({
   page,
   pageCount,
@@ -25,7 +36,7 @@ export const Pagination = ({
   hasPrevious,
   hasNext,
   disabled = false,
-}) => {
+}: PaginationProps) => {
   const pages = getVisiblePages(page, pageCount);
 
   return (

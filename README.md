@@ -21,7 +21,7 @@ Games are loaded via the [RAWG API](https://rawg.io/apidocs). In production, req
    - `RAWG_API_KEY`
 3. Redeploy after saving.
 
-For local development with `npm start`, copy `.env.example` to `.env.local` and set `REACT_APP_RAWG_API_KEY`, or run `npx vercel dev` to use the `/api/games` proxy.
+For local development, copy `.env.local.example` to `.env.local` and set `RAWG_API_KEY`.
 
 ## Setup
 
@@ -36,7 +36,7 @@ Run
 ```sh
    cd game-metrics
    npm install
-   npm start
+   npm run dev
 ```
 
 ## Authors

@@ -1,18 +1,20 @@
+'use client';
+
 import { useEffect, useState } from 'react';
-import { fetchGames, GAMES_PAGE_SIZE } from '../api/API';
+import { fetchGames, GAMES_PAGE_SIZE, type Game } from '../api/API';
 import { Games } from '../components/Games';
 import { Header } from '../components/Header';
 import { Pagination } from '../components/Pagination';
 import styles from '../styles/Home.module.css';
 
 export const Home = () => {
-  const [games, setGames] = useState([]);
+  const [games, setGames] = useState<Game[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [activeSearch, setActiveSearch] = useState('');
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const pageCount = Math.max(1, Math.ceil(totalCount / GAMES_PAGE_SIZE));
   const hasPrevious = page > 1;
@@ -30,18 +32,15 @@ export const Home = () => {
     })
       .then((response) => {
         if (cancelled) return;
-        setGames(response.data.results);
-        setTotalCount(response.data.count || 0);
+        setGames(response.results);
+        setTotalCount(response.count || 0);
         setError(null);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       })
       .catch((err) => {
         if (cancelled) return;
         const message =
-          err.response?.data?.detail ||
-          err.response?.data?.message ||
-          err.message ||
-          'Failed to load games.';
+          err instanceof Error ? err.message : 'Failed to load games.';
         setError(message);
         setGames([]);
         setTotalCount(0);
@@ -55,17 +54,17 @@ export const Home = () => {
     };
   }, [activeSearch, page]);
 
-  const handleOnChange = (e) => {
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setPage(1);
     setActiveSearch(inputValue.trim());
   };
 
-  const handlePageSelect = (pageNumber) => {
+  const handlePageSelect = (pageNumber: number) => {
     setPage(pageNumber);
   };
 
@@ -119,3 +118,5 @@ export const Home = () => {
     </>
   );
 };
+
+export default Home;
