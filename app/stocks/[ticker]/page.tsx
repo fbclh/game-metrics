@@ -1,9 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getSessionId } from '@/lib/session';
 import { SubpageHeader } from '@/src/components/layout/SubpageHeader';
+import {
+  WATCHLIST_STATUS_LABELS,
+  WATCHLIST_TABS,
+  type WatchlistStatus,
+} from '@/types/watchlist';
 
 type PreviousClose = {
   c?: number;
@@ -70,6 +75,10 @@ export default function StockDetailPage({
   const [stock, setStock] = useState<StockDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [savedStatus, setSavedStatus] = useState<WatchlistStatus | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [savingWatchlist, setSavingWatchlist] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -133,6 +142,99 @@ export default function StockDetailPage({
       }),
     }).catch(() => {});
   }, [stock?.ticker, stock?.name]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadSavedStatus() {
+      try {
+        const sessionId = getSessionId();
+        const response = await fetch(
+          `/api/watchlist?session_id=${encodeURIComponent(sessionId)}`,
+        );
+        const payload = await response.json();
+
+        if (!response.ok || !payload.ok || cancelled) {
+          return;
+        }
+
+        const match = (payload.data ?? []).find(
+          (item: { ticker?: string; status?: WatchlistStatus }) =>
+            item.ticker?.toUpperCase() === ticker,
+        );
+
+        if (match?.status && !cancelled) {
+          setSavedStatus(match.status);
+        }
+      } catch {
+        // Ignore watchlist preload errors on detail page.
+      }
+    }
+
+    loadSavedStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ticker]);
+
+  useEffect(() => {
+    if (!dropdownOpen) {
+      return;
+    }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpen]);
+
+  const handleSaveToWatchlist = async (status: WatchlistStatus) => {
+    if (!stock?.ticker || !stock.name) {
+      return;
+    }
+
+    setSavingWatchlist(true);
+    setDropdownOpen(false);
+
+    try {
+      const response = await fetch('/api/watchlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ticker: stock.ticker,
+          company_name: stock.name,
+          logo_url: logoUrl,
+          sector: stock.sic_description ?? null,
+          status,
+          session_id: getSessionId(),
+        }),
+      });
+      const payload = await response.json();
+
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.error ?? 'Failed to save to watchlist.');
+      }
+
+      setSavedStatus(status);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to save to watchlist.',
+      );
+    } finally {
+      setSavingWatchlist(false);
+    }
+  };
 
   const logoUrl =
     stock?.branding?.logo_url ?? stock?.branding?.icon_url ?? null;
@@ -243,13 +345,35 @@ export default function StockDetailPage({
             )}
 
             <div className="border-t border-gray-200 px-6 py-5">
-              <button
-                type="button"
-                disabled
-                className="cursor-not-allowed rounded-md bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-500"
-              >
-                Save to Watchlist
-              </button>
+              <div className="relative inline-block" ref={dropdownRef}>
+                <button
+                  type="button"
+                  disabled={savingWatchlist}
+                  onClick={() => setDropdownOpen((open) => !open)}
+                  className="rounded-md bg-[#e60012] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#bf0010] disabled:opacity-60"
+                >
+                  {savingWatchlist
+                    ? 'Saving…'
+                    : savedStatus
+                      ? `${WATCHLIST_STATUS_LABELS[savedStatus]} ✓`
+                      : 'Save to Watchlist'}
+                </button>
+
+                {dropdownOpen && !savingWatchlist && (
+                  <div className="absolute left-0 z-10 mt-2 min-w-[180px] overflow-hidden rounded-md border border-gray-200 bg-white shadow-lg">
+                    {WATCHLIST_TABS.map((tab) => (
+                      <button
+                        key={tab.status}
+                        type="button"
+                        onClick={() => handleSaveToWatchlist(tab.status)}
+                        className="block w-full px-4 py-2 text-left text-sm text-gray-700 transition hover:bg-gray-50"
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </article>
         )}
