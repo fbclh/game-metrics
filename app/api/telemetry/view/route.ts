@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 type ViewTelemetryBody = {
-  game_id?: unknown;
-  game_name?: unknown;
+  ticker?: unknown;
+  company_name?: unknown;
   session_id?: unknown;
 };
 
@@ -19,21 +19,22 @@ export async function POST(request: Request) {
     );
   }
 
-  const gameId = body.game_id;
-  const gameName = typeof body.game_name === 'string' ? body.game_name.trim() : '';
+  const ticker = typeof body.ticker === 'string' ? body.ticker.trim() : '';
+  const companyName =
+    typeof body.company_name === 'string' ? body.company_name.trim() : '';
   const sessionId =
     typeof body.session_id === 'string' ? body.session_id.trim() : '';
 
-  if (typeof gameId !== 'number' || !Number.isFinite(gameId)) {
+  if (!ticker) {
     return NextResponse.json(
-      { ok: false, error: 'game_id must be a number.' },
+      { ok: false, error: 'ticker is required.' },
       { status: 400 },
     );
   }
 
-  if (!gameName) {
+  if (!companyName) {
     return NextResponse.json(
-      { ok: false, error: 'game_name is required.' },
+      { ok: false, error: 'company_name is required.' },
       { status: 400 },
     );
   }
@@ -49,10 +50,11 @@ export async function POST(request: Request) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
-  const { error } = await supabase.from('game_views').insert({
+
+  const { error } = await supabase.from('asset_views').insert({
     session_id: sessionId,
-    game_id: gameId,
-    game_name: gameName,
+    ticker,
+    company_name: companyName,
   });
 
   if (error) {

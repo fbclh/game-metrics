@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { getSessionId } from '@/lib/session';
 import { searchStocks, type StockResult } from '../api/API';
 import { Stocks } from '../components/Stocks';
 import { Header } from '../components/Header';
@@ -77,7 +78,21 @@ export const Home = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setActiveSearch(inputValue.trim());
+    const query = inputValue.trim();
+    if (!query) {
+      return;
+    }
+
+    fetch('/api/telemetry/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query,
+        session_id: getSessionId(),
+      }),
+    }).catch(() => {});
+
+    setActiveSearch(query);
   };
 
   const handleLoadMore = () => {
