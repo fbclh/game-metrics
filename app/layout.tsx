@@ -10,8 +10,8 @@ const pressStart2P = Press_Start_2P({
 });
 
 export const metadata: Metadata = {
-  title: 'Game Metrics',
-  description: 'Browse video games and search by title with Game Metrics.',
+  title: 'MarketMetrics',
+  description: 'Stock research and analytics platform',
 };
 
 export default function RootLayout({

@@ -1,4 +1,4 @@
-const SESSION_COOKIE = 'gm_session_id';
+const SESSION_COOKIE = 'mm_session_id';
 const ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
 
 function readCookie(name: string): string | null {

@@ -1,59 +1,66 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { fetchGames, GAMES_PAGE_SIZE, type Game } from '../api/API';
-import { getSessionId } from '@/lib/session';
-import { Games } from '../components/Games';
+import { useCallback, useEffect, useState } from 'react';
+import { searchStocks, type StockResult } from '../api/API';
+import { Stocks } from '../components/Stocks';
 import { Header } from '../components/Header';
-import { Pagination } from '../components/Pagination';
 import styles from '../styles/Home.module.css';
 
 export const Home = () => {
-  const [games, setGames] = useState<Game[]>([]);
+  const [stocks, setStocks] = useState<StockResult[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [activeSearch, setActiveSearch] = useState('');
-  const [page, setPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
+  const [nextCursor, setNextCursor] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const pageCount = Math.max(1, Math.ceil(totalCount / GAMES_PAGE_SIZE));
-  const hasPrevious = page > 1;
-  const hasNext = page < pageCount;
+  const loadStocks = useCallback(
+    async (query: string, cursor?: string, append = false) => {
+      if (append) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+      }
+
+      try {
+        const response = await searchStocks({
+          query: query || undefined,
+          cursor,
+        });
+
+        setStocks((current) =>
+          append ? [...current, ...response.results] : response.results,
+        );
+        setNextCursor(response.nextCursor);
+        setError(null);
+
+        if (!append) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      } catch (err) {
+        if (!append) {
+          setStocks([]);
+          setNextCursor(undefined);
+        }
+
+        const message =
+          err instanceof Error ? err.message : 'Failed to load stocks.';
+        setError(message);
+      } finally {
+        if (append) {
+          setLoadingMore(false);
+        } else {
+          setLoading(false);
+        }
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
-    let cancelled = false;
-
-    setLoading(true);
-
-    fetchGames({
-      search: activeSearch || undefined,
-      page,
-      pageSize: GAMES_PAGE_SIZE,
-    })
-      .then((response) => {
-        if (cancelled) return;
-        setGames(response.results);
-        setTotalCount(response.count || 0);
-        setError(null);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        const message =
-          err instanceof Error ? err.message : 'Failed to load games.';
-        setError(message);
-        setGames([]);
-        setTotalCount(0);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [activeSearch, page]);
+    loadStocks(activeSearch);
+  }, [activeSearch, loadStocks]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -61,7 +68,6 @@ export const Home = () => {
     if (search) {
       setInputValue(search);
       setActiveSearch(search.trim());
-      setPage(1);
     }
   }, []);
 
@@ -71,32 +77,15 @@ export const Home = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const query = inputValue.trim();
-    setPage(1);
-    setActiveSearch(query);
+    setActiveSearch(inputValue.trim());
+  };
 
-    if (query) {
-      fetch('/api/telemetry/search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query,
-          session_id: getSessionId(),
-        }),
-      }).catch(() => {});
+  const handleLoadMore = () => {
+    if (!nextCursor || loadingMore) {
+      return;
     }
-  };
 
-  const handlePageSelect = (pageNumber: number) => {
-    setPage(pageNumber);
-  };
-
-  const handlePrevious = () => {
-    setPage((current) => Math.max(1, current - 1));
-  };
-
-  const handleNext = () => {
-    setPage((current) => Math.min(pageCount, current + 1));
+    loadStocks(activeSearch, nextCursor, true);
   };
 
   return (
@@ -106,9 +95,11 @@ export const Home = () => {
         handleOnChange={handleOnChange}
         handleSubmit={handleSubmit}
       />
-      {loading && games.length === 0 && (
+      {loading && stocks.length === 0 && (
         <p className="status">
-          {activeSearch ? `Searching for “${activeSearch}”…` : 'Loading games…'}
+          {activeSearch
+            ? `Searching for “${activeSearch}”…`
+            : 'Loading stocks…'}
         </p>
       )}
       {error && (
@@ -116,25 +107,20 @@ export const Home = () => {
           {error}
         </p>
       )}
-      {!loading && !error && games.length === 0 && (
+      {!loading && !error && stocks.length === 0 && (
         <p className="status">
           {activeSearch
-            ? `No games found for “${activeSearch}”.`
-            : 'No games found.'}
+            ? `No stocks found for “${activeSearch}”.`
+            : 'No stocks found.'}
         </p>
       )}
-      {!error && games.length > 0 && (
+      {!error && stocks.length > 0 && (
         <div className={styles.layout}>
-          <Games games={games} />
-          <Pagination
-            page={page}
-            pageCount={pageCount}
-            onPageSelect={handlePageSelect}
-            onPrevious={handlePrevious}
-            onNext={handleNext}
-            hasPrevious={hasPrevious}
-            hasNext={hasNext}
-            disabled={loading}
+          <Stocks
+            stocks={stocks}
+            hasMore={Boolean(nextCursor)}
+            loadingMore={loadingMore}
+            onLoadMore={handleLoadMore}
           />
         </div>
       )}

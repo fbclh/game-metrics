@@ -1,4 +1,4 @@
-import { RawgAttribution } from './rawg-attribution';
+import { MassiveAttribution } from './massive-attribution';
 
 const layoutStyle = {
   minHeight: '100vh',
@@ -31,8 +31,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <div style={layoutStyle}>
       <main style={mainStyle}>{children}</main>
       <footer style={footerStyle}>
-        <RawgAttribution />
-        <span style={brandStyle}>GameMetrics</span>
+        <MassiveAttribution />
+        <span style={brandStyle}>MarketMetrics</span>
       </footer>
     </div>
   );

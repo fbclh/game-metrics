@@ -52,7 +52,7 @@ export function SearchForm({ value, onChange, onSubmit }: SearchFormProps) {
       <input
         className={styles.input}
         type="text"
-        placeholder="Search game"
+        placeholder="Search stocks, ETFs..."
         value={inputValue}
         onChange={(event) => handleChange(event.target.value)}
       />

@@ -2,9 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
-import { getSessionId } from '@/lib/session';
-import type { PlayListItem } from '@/types/playlist';
 
 const badgeStyle = {
   display: 'inline-grid',
@@ -29,15 +26,8 @@ const textStyle = {
   transform: 'translateY(2px)',
 };
 
-type PlaylistResponse = {
-  ok: boolean;
-  data?: PlayListItem[];
-};
-
 export function Nav() {
   const pathname = usePathname();
-  const [listCount, setListCount] = useState(0);
-  const fetchedRef = useRef(false);
 
   const navLinkClass = (href: string) => {
     const currentPath = pathname ?? '/';
@@ -51,37 +41,17 @@ export function Nav() {
       : 'text-sm text-white/80 transition hover:text-white';
   };
 
-  useEffect(() => {
-    if (fetchedRef.current) return;
-    fetchedRef.current = true;
-
-    const sessionId = getSessionId();
-    fetch(`/api/playlist?session_id=${encodeURIComponent(sessionId)}`)
-      .then((response) => response.json())
-      .then((result: PlaylistResponse) => {
-        if (result.ok && result.data) {
-          setListCount(result.data.length);
-        }
-      })
-      .catch(() => {});
-  }, []);
-
   return (
     <div className="flex items-center gap-4">
       <Link
         href="/"
         style={{ ...badgeStyle, textDecoration: 'none' }}
-        aria-label="Game Metrics home"
+        aria-label="MarketMetrics home"
       >
-        <span style={textStyle}>Game</span>
+        <span style={textStyle}>MM</span>
       </Link>
-      <Link href="/playlist" className={`relative inline-flex items-center gap-1.5 ${navLinkClass('/playlist')}`}>
-        My List
-        {listCount > 0 && (
-          <span className="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-white/15 px-1.5 py-0.5 text-xs font-semibold text-white">
-            {listCount}
-          </span>
-        )}
+      <Link href="/watchlist" className={navLinkClass('/watchlist')}>
+        Watchlist
       </Link>
       <Link href="/analytics" className={navLinkClass('/analytics')}>
         Dashboard

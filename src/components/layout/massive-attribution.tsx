@@ -10,17 +10,17 @@ const linkStyle = {
   textUnderlineOffset: '2px',
 };
 
-export function RawgAttribution() {
+export function MassiveAttribution() {
   return (
     <span style={wrapperStyle}>
-      Data provided by{' '}
+      Market data provided by{' '}
       <a
-        href="https://rawg.io"
+        href="https://polygon.io"
         target="_blank"
         rel="noopener noreferrer"
         style={linkStyle}
       >
-        RAWG
+        Massive
       </a>
     </span>
   );

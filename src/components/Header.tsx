@@ -52,7 +52,7 @@ export const Header = ({
         <input
           className={styles.input}
           type="text"
-          placeholder="Search game"
+          placeholder="Search stocks, ETFs..."
           value={characters}
           onChange={handleOnChange}
         />

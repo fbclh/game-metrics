@@ -1,0 +1,137 @@
+.section {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  background-color: #e5e7eb;
+}
+
+.ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  justify-content: center;
+  width: 100%;
+  max-width: calc(190px * 5 + 1.25rem * 4);
+  margin-top: 2rem;
+  margin-bottom: 0;
+  padding: 0;
+  gap: 1.25rem;
+  list-style: none;
+}
+
+.li {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 190px;
+  background-color: #1a1a2e;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: filter 0.2s ease;
+}
+
+.li:hover {
+  filter: brightness(1.12);
+}
+
+.cardLink {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 120px;
+  background-color: #111827;
+}
+
+.logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  background-color: #374151;
+}
+
+.caption {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.875rem 0.75rem 1rem;
+}
+
+.ticker {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.name {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #9ca3af;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.exchange {
+  display: inline-flex;
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #e5e7eb;
+  background-color: #374151;
+  border-radius: 999px;
+}
+
+.loadMoreWrap {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.loadMore {
+  padding: 0.875rem 1.75rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #e60012;
+  color: #fff;
+  font-family: system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.loadMore:hover:not(:disabled) {
+  background-color: #bf0010;
+}
+
+.loadMore:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
